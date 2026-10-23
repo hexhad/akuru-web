@@ -2,7 +2,7 @@
  * HEXHAD tokens (hexhad.github.io css/hexhad.css): Graphite neutrals and one accent, Cell Mint.
  * Akuru is flat like its keys: hairline outlines, no drop shadows.
  * Mint marks the one thing to do (Get Akuru) and the Sinhala that Akuru writes. Everything else is neutral.
- * Radius rule: controls and chips are pills, containers 24px, inner surfaces 16px, phone captures 32px.
+ * Radius rule: controls and chips are pills, containers 24px, inner surfaces 16px; the keyboard keeps the app's own radii.
  */
 :root {
   --bg: #f4f5f6;
@@ -20,7 +20,6 @@
 
   --r-card: 24px;
   --r-inner: 16px;
-  --r-phone: 32px;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --wrap: 1160px;
@@ -293,23 +292,27 @@ h1 .si {
   margin-top: 8px;
 }
 
+/* Stretch the column: the keyboard sizes itself from its box (container query), so it needs a definite width. */
 .hero-shot {
-  justify-self: center;
+  justify-self: stretch;
+  display: grid;
+  justify-items: center;
 }
 
-.phone {
-  width: min(340px, 78vw);
-  border-radius: var(--r-phone);
-  border: 1px solid var(--line-strong);
-  background: var(--surface);
-  padding: 8px;
+.device {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 12px;
 }
 
-.phone img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: calc(var(--r-phone) - 8px);
+.bubble {
+  justify-self: start;
+  max-width: 80%;
+  padding: 10px 16px;
+  border-radius: 20px 20px 20px 6px;
+  background: var(--surface-2);
+  font-size: 1.15rem;
+  line-height: 1.4;
 }
 
 @media (max-width: 860px) {
@@ -562,23 +565,10 @@ h1 .si {
   max-width: 40ch;
 }
 
-/* Each tile shows the keyboard half of a real capture, cropped from the bottom of the screen. */
+/* Each tile ends with Akuru's keyboard, drawn in HTML (components/AkuruKeyboard.tsx). */
 .tile-shot {
-  margin: 20px 24px 0;
+  margin: 20px 20px 20px;
   align-self: end;
-  border: 1px solid var(--line-strong);
-  border-bottom: 0;
-  border-radius: var(--r-inner) var(--r-inner) 0 0;
-  overflow: hidden;
-  aspect-ratio: 720 / 760;
-}
-
-.tile-shot img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: bottom;
 }
 
 .tile-english {
@@ -586,9 +576,6 @@ h1 .si {
   background: linear-gradient(180deg, var(--mint-wash), var(--surface) 60%);
 }
 
-.tile-english .tile-shot {
-  aspect-ratio: 720 / 1300;
-}
 
 .tile-clipboard {
   grid-area: clipboard;
@@ -617,13 +604,7 @@ h1 .si {
 }
 
 .tile-themes .tile-shot {
-  margin: 24px 24px 0 0;
-  aspect-ratio: 720 / 620;
-  border-color: rgb(244 245 246 / 0.16);
-}
-
-.tile-themes .tile-shot img {
-  object-position: top;
+  margin: 24px 24px 24px 0;
 }
 
 @media (max-width: 960px) {
@@ -643,8 +624,7 @@ h1 .si {
     padding: 28px;
   }
   .tile-english .tile-shot {
-    margin: 24px 24px 0 0;
-    aspect-ratio: 720 / 760;
+    margin: 24px 24px 24px 0;
   }
 }
 
@@ -664,7 +644,7 @@ h1 .si {
   }
   .tile-english .tile-shot,
   .tile-themes .tile-shot {
-    margin: 20px 24px 0;
+    margin: 20px;
   }
 }
 
@@ -887,4 +867,377 @@ h1 .si {
       animation-range: entry 0% entry 35%;
     }
   }
+}
+
+/* Akuru keyboard (components/AkuruKeyboard.tsx) ------------------------------------------------- */
+/* Colours from the app's KeyTheme.kt. Sized in "dp" (--u) against a 392dp-wide phone, scaled to the box. */
+.akb {
+  container-type: inline-size;
+  width: 100%;
+  --deck: #eceef1;
+  --key: #ffffff;
+  --fn: #d9dde2;
+  --label: #0c0e10;
+  --hint: #7d838a;
+  --field: #ffffff;
+  --edge: rgb(26 29 33 / 0.1);
+}
+
+.akb-dark {
+  --deck: #121417;
+  --key: #24282c;
+  --fn: #1a1d21;
+  --label: #ededef;
+  --hint: #8a9198;
+  --field: #1a1d21;
+  --edge: rgb(244 245 246 / 0.08);
+}
+
+.akb-mint {
+  --acc: #43e0a0;
+  --on-acc: #04130c;
+  --soft: #cff5e3;
+  --on-soft: #0a3d29;
+}
+
+.akb-dark.akb-mint {
+  --soft: #0e3b29;
+  --on-soft: #7dedbe;
+}
+
+.akb-ember {
+  --acc: #ff7716;
+  --on-acc: #301000;
+  --soft: #ffe1cc;
+  --on-soft: #4c1e01;
+}
+
+.akb-dark.akb-ember {
+  --soft: #4c1e01;
+  --on-soft: #ffc8aa;
+}
+
+.akb-in {
+  --u: calc(100cqw / 392);
+  display: grid;
+  gap: calc(10 * var(--u));
+  font-family: var(--font-geist), sans-serif;
+  color: var(--label);
+  user-select: none;
+}
+
+.akb [lang="si"],
+.akb-s,
+.akb-lang small,
+.akb-space {
+  font-family: var(--font-sinhala), sans-serif;
+  font-weight: 500;
+}
+
+.akb-icon {
+  width: calc(21 * var(--u));
+  height: calc(21 * var(--u));
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.akb-field {
+  display: flex;
+  align-items: center;
+  min-height: calc(48 * var(--u));
+  padding: 0 calc(18 * var(--u));
+  border-radius: 999px;
+  background: var(--field);
+  border: 1px solid var(--edge);
+  font-size: calc(17 * var(--u));
+  color: var(--label);
+}
+
+.akb-field[lang="si"] {
+  font-size: calc(19 * var(--u));
+}
+
+.akb-composing {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.3em;
+}
+
+.akb-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -0.2em;
+  background: var(--acc);
+}
+
+.akb-deck {
+  background: var(--deck);
+  border: 1px solid var(--edge);
+  border-radius: calc(20 * var(--u));
+  padding: calc(4 * var(--u)) calc(3 * var(--u)) calc(10 * var(--u));
+}
+
+.akb-bar {
+  height: calc(38 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 calc(10 * var(--u));
+  color: var(--hint);
+}
+
+.akb-bar .akb-icon {
+  width: calc(19 * var(--u));
+  height: calc(19 * var(--u));
+}
+
+.akb-row {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  height: calc(52 * var(--u));
+}
+
+.akb-k {
+  position: relative;
+  grid-column: span 2;
+  margin: calc(4 * var(--u)) calc(3 * var(--u));
+  border-radius: calc(8 * var(--u));
+  background: var(--key);
+  color: var(--label);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(21 * var(--u));
+  line-height: 1;
+}
+
+.akb-row-2 .akb-k:first-child {
+  grid-column: 2 / span 2;
+}
+
+.akb-fn {
+  background: var(--fn);
+}
+
+.akb-w3 {
+  grid-column: span 3;
+}
+
+.akb-w8 {
+  grid-column: span 8;
+}
+
+.akb-soft,
+.akb-accent {
+  border-radius: 999px;
+}
+
+.akb-soft {
+  background: var(--soft);
+  color: var(--on-soft);
+  font-size: calc(14 * var(--u));
+  font-weight: 500;
+}
+
+.akb-accent {
+  background: var(--acc);
+  color: var(--on-acc);
+}
+
+.akb-space {
+  font-size: calc(15 * var(--u));
+  color: var(--hint);
+}
+
+.akb-d,
+.akb-s,
+.akb-comma {
+  position: absolute;
+  top: calc(3 * var(--u));
+  font-size: calc(10 * var(--u));
+  line-height: 1.2;
+  color: var(--hint);
+}
+
+.akb-d,
+.akb-comma {
+  right: calc(6 * var(--u));
+}
+
+.akb-s {
+  right: calc(6 * var(--u));
+  font-size: calc(12 * var(--u));
+}
+
+.akb-top .akb-s {
+  right: auto;
+  left: calc(7 * var(--u));
+}
+
+.akb-lang {
+  flex-direction: column;
+}
+
+.akb-globe {
+  width: calc(17 * var(--u));
+  height: calc(17 * var(--u));
+}
+
+.akb-lang small {
+  font-size: calc(11 * var(--u));
+  margin-top: calc(1 * var(--u));
+}
+
+/* Emoji and clipboard panel (PanelView.kt). */
+.akb-panel {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: calc(250 * var(--u));
+}
+
+.akb-tabs {
+  display: flex;
+  gap: calc(6 * var(--u));
+  padding: calc(6 * var(--u)) calc(6 * var(--u)) calc(4 * var(--u));
+}
+
+.akb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6 * var(--u));
+  height: calc(32 * var(--u));
+  padding: 0 calc(12 * var(--u));
+  border-radius: 999px;
+  background: var(--fn);
+  font-size: calc(13 * var(--u));
+  font-weight: 500;
+}
+
+.akb-pill .akb-icon {
+  width: calc(15 * var(--u));
+  height: calc(15 * var(--u));
+}
+
+.akb-pill-on {
+  background: var(--soft);
+  color: var(--on-soft);
+}
+
+.akb-pill-end {
+  margin-left: auto;
+}
+
+.akb-clips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(8 * var(--u));
+  padding: calc(6 * var(--u)) calc(6 * var(--u));
+  align-content: start;
+}
+
+.akb-clip {
+  display: grid;
+  gap: calc(2 * var(--u));
+  align-content: start;
+  min-height: calc(58 * var(--u));
+  padding: calc(9 * var(--u)) calc(12 * var(--u));
+  border-radius: calc(12 * var(--u));
+  background: var(--key);
+  font-size: calc(14 * var(--u));
+  overflow: hidden;
+}
+
+.akb-clip small {
+  font-size: calc(10.5 * var(--u));
+  color: var(--hint);
+}
+
+.akb-code {
+  font-size: calc(20 * var(--u));
+  letter-spacing: 0.04em;
+}
+
+.akb-link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.akb-clip-wide {
+  grid-column: span 2;
+  min-height: auto;
+  font-size: calc(16 * var(--u));
+}
+
+.akb-emoji {
+  padding: calc(4 * var(--u)) calc(8 * var(--u)) 0;
+  overflow: hidden;
+}
+
+.akb-emoji small {
+  font-size: calc(10.5 * var(--u));
+  letter-spacing: 0.04em;
+  color: var(--hint);
+}
+
+.akb-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  font-size: calc(26 * var(--u));
+  line-height: 1.45;
+  text-align: center;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+.akb-panel-bar {
+  display: flex;
+  align-items: center;
+  gap: calc(6 * var(--u));
+  height: calc(48 * var(--u));
+  padding: 0 calc(3 * var(--u));
+}
+
+.akb-panel-bar .akb-k {
+  margin: 0;
+  height: calc(40 * var(--u));
+}
+
+.akb-abc {
+  width: calc(60 * var(--u));
+  flex: none;
+}
+
+.akb-del {
+  width: calc(52 * var(--u));
+  margin-left: auto !important;
+  flex: none;
+}
+
+.akb-cats {
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+  align-items: center;
+  color: var(--hint);
+}
+
+.akb-cats .akb-icon {
+  width: calc(18 * var(--u));
+  height: calc(18 * var(--u));
+}
+
+.akb-cat-on {
+  display: grid;
+  place-items: center;
+  width: calc(32 * var(--u));
+  height: calc(32 * var(--u));
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--on-soft);
 }
