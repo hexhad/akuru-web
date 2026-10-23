@@ -1,15 +1,22 @@
 import { ArrowRight, GooglePlayLogo, ShieldCheck, UserCircleMinus, WifiSlash } from "@phosphor-icons/react/dist/ssr";
-import Image from "next/image";
+import { AkuruKeyboard } from "./components/AkuruKeyboard";
 import { HeroIn } from "./components/HeroIn";
 import { Reveal } from "./components/Reveal";
 import { TryIt } from "./components/TryIt";
 import { PLAY_URL, REQUIREMENTS } from "./site";
 
-/** A real capture from the app (goldie's raw screenshots), shown in a flat phone outline. */
-function Phone({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) {
+/** The hero device: a chat bubble, the message field and Akuru's keyboard, drawn in HTML from the app's theme. */
+function HeroDevice() {
   return (
-    <div className="phone">
-      <Image src={src} alt={alt} width={720} height={1606} priority={priority} sizes="(max-width: 768px) 80vw, 360px" />
+    <div className="device">
+      <p className="bubble" lang="si">
+        පුතා, අද ගෙදර එනවද?
+      </p>
+      <AkuruKeyboard
+        mode="si"
+        text="ඔව් අම්මා මම දැන් එනවා"
+        label="Akuru's Sinhala keyboard typing ඔව් අම්මා මම දැන් එනවා in reply to a message"
+      />
     </div>
   );
 }
@@ -23,34 +30,34 @@ function GetAkuru({ large = false }: { large?: boolean }) {
   );
 }
 
-const FEATURES = [
+const FEATURES: { id: string; title: string; body: string; kb: Omit<Parameters<typeof AkuruKeyboard>[0], "label">; label: string }[] = [
   {
     id: "english",
     title: "English is one tap away",
     body: "The globe key switches between සිංහල and English. Password, email and link fields always type English.",
-    src: "/screens/english.png",
-    alt: "Akuru in English mode, typing a reply in Google Messages",
+    kb: { mode: "en", text: "Leaving the office now. Home by 7" },
+    label: "Akuru's English keyboard",
   },
   {
     id: "clipboard",
     title: "Copied it? Paste it",
     body: "Clipboard history spots one-time codes and links. Pin what you need. Password fields are never saved.",
-    src: "/screens/clipboard.png",
-    alt: "Akuru's clipboard with a verification code and a Sinhala message",
+    kb: { mode: "clipboard" },
+    label: "Akuru's clipboard with a code, a link and a Sinhala message",
   },
   {
     id: "emoji",
     title: "Every emoji, close by",
     body: "Categories and recents, drawn in your phone's own emoji.",
-    src: "/screens/emoji.png",
-    alt: "Akuru's emoji panel",
+    kb: { mode: "emoji" },
+    label: "Akuru's emoji panel",
   },
   {
     id: "themes",
     title: "Make it yours",
     body: "Light or dark, four accents and three key heights.",
-    src: "/screens/themes.png",
-    alt: "Akuru's settings with the dark theme and the Ember accent",
+    kb: { mode: "si", theme: "dark", accent: "ember" },
+    label: "Akuru's keyboard in the dark theme with the Ember accent",
   },
 ];
 
@@ -75,11 +82,7 @@ export default function Home() {
           </div>
         </HeroIn>
         <HeroIn className="hero-shot" delay={0.12}>
-          <Phone
-            src="/screens/singlish.png"
-            alt="Akuru typing ඔව් අම්මා මම දැන් එනවා in a chat with Amma"
-            priority
-          />
+          <HeroDevice />
         </HeroIn>
       </section>
 
@@ -108,7 +111,7 @@ export default function Home() {
                 <p className="muted">{f.body}</p>
               </div>
               <div className="tile-shot">
-                <Image src={f.src} alt={f.alt} width={720} height={1606} sizes="(max-width: 768px) 70vw, 300px" />
+                <AkuruKeyboard {...f.kb} label={f.label} />
               </div>
             </Reveal>
           ))}

@@ -12,8 +12,8 @@ Built with Next.js (App Router), fully static. Geist, Geist Mono and Abhaya Libr
 
 - `app/lib/singlish.ts` is a line-for-line port of the app's Singlish engine; `npm test` runs the app's own test cases
   against it. When the app's rules change, port the change and copy the new cases.
-- `public/screens/*.png` are real captures from the app, made by goldie in the app repo (`goldie/out/raw/pixel-10-pro`),
-  scaled to 720px wide.
+- The keyboards on the page are drawn in HTML by `app/components/AkuruKeyboard.tsx`, from the app's theme and layout
+  (`ime/KeyTheme.kt`, `KeyboardView.kt`, `Layouts.kt`). Keep its colours in step when the app's theme changes.
 
 ## Develop
 
